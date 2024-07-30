@@ -1,0 +1,27 @@
+name: careconnect_api
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image for careconenect api
+    - run: docker build -t mostofa62/careconenect_api .
+    - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    - run: docker push mostofa62/careconenect_api
