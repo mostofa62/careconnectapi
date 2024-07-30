@@ -2,11 +2,8 @@ name: Docker Image CareConnect API
 
 on:
   push:
-    branches: [ "main" ]
-    paths:
-      - '**'
-  pull_request:
-    branches: [ "main" ]
+    branches: 
+      - main
     paths:
       - '**'
 
@@ -17,8 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image Careconnect API
+    - uses: actions/checkout@v2    
     - run: docker build -t mostofa62/careconnect_api .
     - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       env:
