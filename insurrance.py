@@ -34,7 +34,8 @@ async def save_insurance():
                 'county':data['county'],
                 'state':data['state'],
                 "created_at":datetime.now(),
-                "updated_at":datetime.now()
+                "updated_at":datetime.now(),
+                "deleted_at":None
             })
             insurance_id = str(insurance_data.inserted_id)
             message = 'Insurance Data Saved Successfully'
@@ -71,7 +72,8 @@ async def update_insurance(id:str):
                 'zipCode':data['zipCode'],
                 'county':data['county'],
                 'state':data['state'],                
-                "updated_at":datetime.now()
+                "updated_at":datetime.now(),
+                "deleted_at":None
             } }
             insurance =  my_col('insurance').update_one(myquery, newvalues)
             insurance_id = id if insurance.modified_count else None
@@ -107,6 +109,7 @@ def list_insurance():
     # Construct MongoDB filter query
     query = {
         #'role':{'$gte':10}
+        "deleted_at":None
     }
     if global_filter:
         query["$or"] = [
@@ -152,7 +155,7 @@ def list_insurance():
 @app.route("/api/insurances-dropdown", methods=['GET'])
 def list_insurances_dropdown():
     cursor = my_col('insurance').find(
-        {},
+        {"deleted_at":None},
         {'_id':1,'name':1}
         )
     list_cur = []
@@ -164,3 +167,43 @@ def list_insurances_dropdown():
     return jsonify({
         "list":list_cur
     })  
+
+
+
+@app.route('/api/delete-insurances', methods=['POST'])
+def delete_insurance():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+
+        id = data['id']
+
+        insurance_id = None
+        message = None
+        error = 0
+        deleted_done = 0
+
+        try:
+            myquery = { "_id" :ObjectId(id)}
+
+            newvalues = { "$set": {                                     
+                "deleted_at":datetime.now()                
+            } }
+            insurance =  my_col('insurance').update_one(myquery, newvalues)
+            insurance_id = id if insurance.modified_count else None
+            error = 0 if insurance.modified_count else 1
+            deleted_done = 1 if insurance.modified_count else 0
+            message = 'Insurance Data Deleted Successfully'if insurance.modified_count else 'Insurance Data Deletion Failed'
+
+        except Exception as ex:
+            insurance_id = None
+            print('Insurance Save Exception: ',ex)
+            message = 'Insurance Data Deletion Failed'
+            error  = 1
+            deleted_done = 0
+        
+        return jsonify({
+            "insurance_id":insurance_id,
+            "message":message,
+            "error":error,
+            "deleted_done":deleted_done
+        })

@@ -44,7 +44,8 @@ async def save_employee():
                 'zipCode':data['zipCode'],
                 'county':data['county'],                
                 "created_at":datetime.now(),
-                "updated_at":datetime.now()
+                "updated_at":datetime.now(),
+                "deleted_at":None
             })
             employee_id = str(employee_data.inserted_id)
             message = 'Employee Data Saved Successfully'

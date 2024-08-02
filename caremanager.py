@@ -46,7 +46,8 @@ async def save_caremanager():
                 'zipCode':data['zipCode'],
                 'county':data['county'],                
                 "created_at":datetime.now(),
-                "updated_at":datetime.now()
+                "updated_at":datetime.now(),
+                "deleted_at":None
             })
             caremanager_id = str(caremanager_data.inserted_id)
             message = 'Caremanager Data Saved Successfully'
@@ -192,3 +193,42 @@ def list_caremanagers(insid=None):
         'pageCount': total_pages,
         'totalRows': total_count
     })
+
+
+@app.route('/api/delete-caremanager', methods=['POST'])
+def delete_caremanager():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+
+        id = data['id']
+
+        insurance_id = None
+        message = None
+        error = 0
+        deleted_done = 0
+
+        try:
+            myquery = { "_id" :ObjectId(id)}
+
+            newvalues = { "$set": {                                     
+                "deleted_at":datetime.now()                
+            } }
+            insurance =  my_col('caremanager').update_one(myquery, newvalues)
+            insurance_id = id if insurance.modified_count else None
+            error = 0 if insurance.modified_count else 1
+            deleted_done = 1 if insurance.modified_count else 0
+            message = 'Caremanager Data Deleted Successfully'if insurance.modified_count else 'Caremanager Data Deletion Failed'
+
+        except Exception as ex:
+            insurance_id = None
+            print('Caremanager Save Exception: ',ex)
+            message = 'Caremanager Data Deletion Failed'
+            error  = 1
+            deleted_done = 0
+        
+        return jsonify({
+            "insurance_id":insurance_id,
+            "message":message,
+            "error":error,
+            "deleted_done":deleted_done
+        })

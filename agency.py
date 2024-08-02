@@ -34,7 +34,8 @@ async def save_agency():
                 'county':data['county'],
                 'state':data['state'],
                 "created_at":datetime.now(),
-                "updated_at":datetime.now()
+                "updated_at":datetime.now(),
+                "deleted_at":None
             })
             agency_id = str(agency_data.inserted_id)
             message = 'Agency Data Saved Successfully'
