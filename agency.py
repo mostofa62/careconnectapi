@@ -106,6 +106,7 @@ def list_agencys():
     # Construct MongoDB filter query
     query = {
         #'role':{'$gte':10}
+        "deleted_at":None
     }
     if global_filter:
         query["$or"] = [
@@ -160,4 +161,43 @@ def list_agencys_dropdown():
     #data_obj = json.loads(data_json)
     return jsonify({
         "list":list_cur
-    })  
+    }) 
+
+
+@app.route('/api/delete-agency', methods=['POST'])
+def delete_agency():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+
+        id = data['id']
+
+        agency_id = None
+        message = None
+        error = 0
+        deleted_done = 0
+
+        try:
+            myquery = { "_id" :ObjectId(id)}
+
+            newvalues = { "$set": {                                     
+                "deleted_at":datetime.now()                
+            } }
+            agency =  my_col('agency').update_one(myquery, newvalues)
+            agency_id = id if agency.modified_count else None
+            error = 0 if agency.modified_count else 1
+            deleted_done = 1 if agency.modified_count else 0
+            message = 'Agency Data Deleted Successfully'if agency.modified_count else 'Agency Data Deletion Failed'
+
+        except Exception as ex:
+            agency_id = None
+            print('Agency Save Exception: ',ex)
+            message = 'Agency Data Deletion Failed'
+            error  = 1
+            deleted_done = 0
+        
+        return jsonify({
+            "agency_id":agency_id,
+            "message":message,
+            "error":error,
+            "deleted_done":deleted_done
+        })

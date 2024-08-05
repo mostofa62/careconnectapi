@@ -39,10 +39,8 @@ async def save_employee():
                 'agency':{
                     'value':ObjectId(data['agency']['value'])
                 },
-                'address':data['address'],
-                'phoneNumber':data['phoneNumber'],
-                'zipCode':data['zipCode'],
-                'county':data['county'],                
+                'designation':data['designation'],
+                'phoneNumber':data['phoneNumber'],                              
                 "created_at":datetime.now(),
                 "updated_at":datetime.now(),
                 "deleted_at":None
@@ -81,10 +79,8 @@ async def update_employee(id:str):
                 'agency':{
                     'value':ObjectId(data['agency']['value'])
                 },
-                'address':data['address'],
-                'phoneNumber':data['phoneNumber'],
-                'zipCode':data['zipCode'],
-                'county':data['county'],                                
+                'designation':data['designation'],
+                'phoneNumber':data['phoneNumber'],                                                
                 "updated_at":datetime.now()
             } }
             employee =  my_col('employee').update_one(myquery, newvalues)
@@ -119,6 +115,7 @@ def list_employees(angtid=None):
     # Construct MongoDB filter query
     query = {
         #'role':{'$gte':10}
+        "deleted_at":None
     }
 
 
@@ -133,13 +130,14 @@ def list_employees(angtid=None):
 
     if(angtid!=None):    
         query = {
-            'agency.value':ObjectId(angtid)
+            'agency.value':ObjectId(angtid),
+            "deleted_at":None
         }
 
     if global_filter:
         query["$or"] = [
             {"name": {"$regex": global_filter, "$options": "i"}},
-            {"address": {"$regex": global_filter, "$options": "i"}},
+            {"designation": {"$regex": global_filter, "$options": "i"}},
             {"phoneNumber": {"$regex": global_filter, "$options": "i"}},
             {"agency.value": {"$in":agency_id_list}},
             # Add other fields here if needed
@@ -172,6 +170,7 @@ def list_employees(angtid=None):
         entry = {
             "_id":todo["_id"],
             "name":todo["name"],
+            "designation":todo["designation"],
             "phoneNumber":todo["phoneNumber"],
             "agency":agency["name"]
         }
@@ -190,3 +189,42 @@ def list_employees(angtid=None):
         'pageCount': total_pages,
         'totalRows': total_count
     })
+
+
+@app.route('/api/delete-employee', methods=['POST'])
+def delete_employee():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+
+        id = data['id']
+
+        employee_id = None
+        message = None
+        error = 0
+        deleted_done = 0
+
+        try:
+            myquery = { "_id" :ObjectId(id)}
+
+            newvalues = { "$set": {                                     
+                "deleted_at":datetime.now()                
+            } }
+            employee =  my_col('employee').update_one(myquery, newvalues)
+            employee_id = id if employee.modified_count else None
+            error = 0 if employee.modified_count else 1
+            deleted_done = 1 if employee.modified_count else 0
+            message = 'Employee Data Deleted Successfully'if employee.modified_count else 'Employee Data Deletion Failed'
+
+        except Exception as ex:
+            employee_id = None
+            print('Employee Save Exception: ',ex)
+            message = 'Employee Data Deletion Failed'
+            error  = 1
+            deleted_done = 0
+        
+        return jsonify({
+            "employee_id":employee_id,
+            "message":message,
+            "error":error,
+            "deleted_done":deleted_done
+        })

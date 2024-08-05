@@ -41,10 +41,8 @@ async def save_caremanager():
                     'value':ObjectId(data['insurance']['value']),
                     #'label':data['insurance']['label']
                 },                
-                'address':data['address'],
-                'phoneNumber':data['phoneNumber'],
-                'zipCode':data['zipCode'],
-                'county':data['county'],                
+                'designation':data['designation'],
+                'phoneNumber':data['phoneNumber'],                             
                 "created_at":datetime.now(),
                 "updated_at":datetime.now(),
                 "deleted_at":None
@@ -84,10 +82,8 @@ async def update_caremanager(id:str):
                     'value':ObjectId(data['insurance']['value']),
                     #'label':data['insurance']['label']
                 }, 
-                'address':data['address'],
-                'phoneNumber':data['phoneNumber'],
-                'zipCode':data['zipCode'],
-                'county':data['county'],                                
+                'designation':data['designation'],
+                'phoneNumber':data['phoneNumber'],                                                
                 "updated_at":datetime.now()
             } }
             caremanager =  my_col('caremanager').update_one(myquery, newvalues)
@@ -122,6 +118,7 @@ def list_caremanagers(insid=None):
     # Construct MongoDB filter query
     query = {
         #'role':{'$gte':10}
+        "deleted_at":None
     }
     insurance_id_list=[]
     if(insid==None and global_filter!= ''):
@@ -136,13 +133,14 @@ def list_caremanagers(insid=None):
 
     if(insid!=None):    
         query = {
-            'insurance.value':ObjectId(insid)
+            'insurance.value':ObjectId(insid),
+            "deleted_at":None
         }
 
     if global_filter:
         query["$or"] = [
             {"name": {"$regex": global_filter, "$options": "i"}},
-            {"address": {"$regex": global_filter, "$options": "i"}},
+            {"designation": {"$regex": global_filter, "$options": "i"}},
             {"phoneNumber": {"$regex": global_filter, "$options": "i"}},
             {"insurance.value": {"$in":insurance_id_list}},
             # Add other fields here if needed
@@ -175,6 +173,7 @@ def list_caremanagers(insid=None):
         entry = {
             "_id":todo["_id"],
             "name":todo["name"],
+            "designation":todo["designation"],
             "phoneNumber":todo["phoneNumber"],
             "insurance":insurance["name"]
         }
