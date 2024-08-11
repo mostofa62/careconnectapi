@@ -5,6 +5,7 @@ from home import *
 from insurrance import *
 from caremanager import *
 from agency import *
+from agencyrate import *
 from employee import *
 #import logging
 
