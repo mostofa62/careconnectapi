@@ -7,6 +7,8 @@ from caremanager import *
 from agency import *
 from agencyrate import *
 from employee import *
+from marketer import *
+from caregiver import *
 #import logging
 
 #logging.basicConfig(filename='error.log',level=logging.DEBUG)
