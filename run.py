@@ -9,6 +9,7 @@ from agencyrate import *
 from employee import *
 from marketer import *
 from caregiver import *
+from chunkupload import *
 #import logging
 
 #logging.basicConfig(filename='error.log',level=logging.DEBUG)

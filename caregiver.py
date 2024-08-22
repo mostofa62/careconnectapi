@@ -53,7 +53,8 @@ async def update_caregiver(id:str):
                 'email':data['email'],                                
                 'ssn':data['ssn'],
                 'bank_acc_no':data['bank_acc_no'],
-                'bank_routing_no':data['bank_routing_no'],             
+                'bank_routing_no':data['bank_routing_no'],
+                'working_schedule':data['working_schedule'],             
                 "updated_at":datetime.now(),
                 "deleted_at":None
             } }
@@ -94,6 +95,7 @@ async def save_caregiver():
                 'ssn':data['ssn'],
                 'bank_acc_no':data['bank_acc_no'],
                 'bank_routing_no':data['bank_routing_no'],
+                'working_schedule':data['working_schedule'], 
                 "created_at":datetime.now(),
                 "updated_at":datetime.now(),
                 "deleted_at":None

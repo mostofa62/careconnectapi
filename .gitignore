@@ -1,3 +1,4 @@
+tmp/*
 uploads/*
 !uploads/.gitkeep 
 error.log
