@@ -12,6 +12,12 @@ def view_caregiver(id:str):
         {"_id":ObjectId(id)},
         {"_id":0}
         )
+    
+    caregiver['photo_attachment_id'] = str(caregiver['photo_attachment_id']) if caregiver['photo_attachment_id']!=None else ''
+    caregiver['ssn_attachment_id'] = str(caregiver['ssn_attachment_id']) if caregiver['ssn_attachment_id']!=None else ''
+    caregiver['bank_attachment_id'] = str(caregiver['bank_attachment_id']) if caregiver['bank_attachment_id']!=None else ''
+    caregiver['physical_form_attachment_id'] = str(caregiver['physical_form_attachment_id']) if caregiver['physical_form_attachment_id']!=None else ''
+    caregiver['wfour_form_attachment_id'] = str(caregiver['wfour_form_attachment_id']) if caregiver['wfour_form_attachment_id']!=None else ''
 
     return jsonify({
         "caregiver":caregiver
@@ -54,7 +60,14 @@ async def update_caregiver(id:str):
                 'ssn':data['ssn'],
                 'bank_acc_no':data['bank_acc_no'],
                 'bank_routing_no':data['bank_routing_no'],
-                'working_schedule':data['working_schedule'],             
+                'working_schedule':data['working_schedule'],
+
+                'photo_attachment_id':ObjectId(data['photo_attachment_id']) if data['photo_attachment_id']!='' else None,
+                'ssn_attachment_id':ObjectId(data['ssn_attachment_id']) if data['ssn_attachment_id']!='' else None,
+                'bank_attachment_id':ObjectId(data['bank_attachment_id']) if data['bank_attachment_id']!='' else None,
+                'physical_form_attachment_id':ObjectId(data['physical_form_attachment_id']) if data['physical_form_attachment_id']!='' else None,
+                'wfour_form_attachment_id':ObjectId(data['wfour_form_attachment_id']) if data['wfour_form_attachment_id']!='' else None,
+
                 "updated_at":datetime.now(),
                 "deleted_at":None
             } }
@@ -95,7 +108,14 @@ async def save_caregiver():
                 'ssn':data['ssn'],
                 'bank_acc_no':data['bank_acc_no'],
                 'bank_routing_no':data['bank_routing_no'],
-                'working_schedule':data['working_schedule'], 
+                'working_schedule':data['working_schedule'],
+
+                'photo_attachment_id':ObjectId(data['photo_attachment_id']) if data['photo_attachment_id']!='' else None,
+                'ssn_attachment_id':ObjectId(data['ssn_attachment_id']) if data['ssn_attachment_id']!='' else None,
+                'bank_attachment_id':ObjectId(data['bank_attachment_id']) if data['bank_attachment_id']!='' else None,
+                'physical_form_attachment_id':ObjectId(data['physical_form_attachment_id']) if data['physical_form_attachment_id']!='' else None,
+                'wfour_form_attachment_id':ObjectId(data['wfour_form_attachment_id']) if data['wfour_form_attachment_id']!='' else None,
+
                 "created_at":datetime.now(),
                 "updated_at":datetime.now(),
                 "deleted_at":None
