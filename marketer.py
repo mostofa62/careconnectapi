@@ -12,7 +12,7 @@ def view_marketer(id:str):
         {"_id":ObjectId(id)},
         {"_id":0}
         )
-
+    marketer['contract_doc_id'] = str(marketer['contract_doc_id']) if marketer['contract_doc_id']!=None else ''
     return jsonify({
         "marketer":marketer
     })
@@ -51,7 +51,9 @@ async def update_marketer(id:str):
                 'address':data['address'],
                 'phoneNumber':data['phoneNumber'],
                 'email':data['email'],                                
-                'type':data['type'],             
+                'type':data['type'],
+                'contract_type':data['contract_type'],
+                'contract_doc_id':ObjectId(data['contract_doc_id']) if data['contract_doc_id']!='' else None,              
                 "updated_at":datetime.now(),
                 "deleted_at":None
             } }
@@ -90,6 +92,8 @@ async def save_marketer():
                 'phoneNumber':data['phoneNumber'],
                 'email':data['email'],                                
                 'type':data['type'],
+                'contract_type':data['contract_type'],
+                'contract_doc_id':ObjectId(data['contract_doc_id']) if data['contract_doc_id']!='' else None,              
                 "created_at":datetime.now(),
                 "updated_at":datetime.now(),
                 "deleted_at":None
@@ -133,7 +137,8 @@ def list_marketer():
             {"address": {"$regex": global_filter, "$options": "i"}},
             {"phoneNumber": {"$regex": global_filter, "$options": "i"}},
             {"email": {"$regex": global_filter, "$options": "i"}},
-            {"type.value": {"$regex": global_filter, "$options": "i"}},            
+            {"type.value": {"$regex": global_filter, "$options": "i"}},
+            {"contract_type.value": {"$regex": global_filter, "$options": "i"}},            
             # Add other fields here if needed
         ]
 
