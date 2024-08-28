@@ -180,7 +180,12 @@ def list_caregiver():
         cursor = collection.find(query).skip(page_index * page_size).limit(page_size)
 
     total_count = collection.count_documents(query)
-    data_list = list(cursor)
+    data_list = []
+    for todo in cursor:
+        total_hours = sum(map(lambda item: item.get("total_hour", 0), todo['working_schedule']))
+        todo['total_hour']=total_hours
+        data_list.append(todo)
+    #data_list = list(cursor)
     data_json = MongoJSONEncoder().encode(data_list)
     data_obj = json.loads(data_json)
 
