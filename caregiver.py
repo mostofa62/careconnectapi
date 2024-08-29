@@ -25,13 +25,26 @@ def view_caregiver(id:str):
 
 @app.route("/api/caregiver-dropdown", methods=['GET'])
 def list_caregivers_dropdown():
-    cursor = my_col('caregiver').find(
-        {"deleted_at":None},
-        {'_id':1,'name':1}
-        )
+    page_size = request.args.get('pageSize', 5)
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 5))
+    query = request.args.get('query', '')
+    # Create a query that searches across multiple fields
+    search_query = {
+        "$or": [
+            {"name": {"$regex": query, "$options": "i"}},
+            {"email": {"$regex": query, "$options": "i"}},
+            {"phoneNumber": {"$regex": query, "$options": "i"}},
+            {"ssn": {"$regex": query, "$options": "i"}}
+        ],
+        "deleted_at":None
+    }
+    collection = my_col('caregiver')  # Replace with your collection name
+    cursor = collection.find(search_query,{'_id':1,'name':1,'ssn':1}).sort("created_at", -1).skip((page - 1) * limit).limit(limit)
+        
     list_cur = []
     for todo in cursor:               
-        list_cur.append({'value':str(todo['_id']),'label':todo['name']})
+        list_cur.append({'value':str(todo['_id']),'label': f"{todo['ssn']} {todo['name']}" })
     #list_cur = list(cursor)
     #data_json = MongoJSONEncoder().encode(list_cur)
     #data_obj = json.loads(data_json)
@@ -46,6 +59,7 @@ async def update_caregiver(id:str):
         data = json.loads(request.data)
 
         caregiver_id = None
+        caregiver_single = None
         message = None
         error = 0
 
@@ -54,10 +68,12 @@ async def update_caregiver(id:str):
 
             newvalues = { "$set": {           
                 'name':data['name'],
+                'gender':data['gender'],
                 'address':data['address'],
                 'phoneNumber':data['phoneNumber'],
                 'email':data['email'],                                
                 'ssn':data['ssn'],
+                'bank_name':data['bank_name'],
                 'bank_acc_no':data['bank_acc_no'],
                 'bank_routing_no':data['bank_routing_no'],
                 'working_schedule':data['working_schedule'],
@@ -74,16 +90,20 @@ async def update_caregiver(id:str):
             caregiver =  my_col('caregiver').update_one(myquery, newvalues)
             caregiver_id = id if caregiver.modified_count else None
             error = 0 if caregiver.modified_count else 1
+            c_s_data = my_col('caregiver').find_one(myquery,{'name':1})
+            caregiver_single = {'value':str(c_s_data['_id']), 'label':c_s_data['name']}
             message = 'Caregiver Data Update Successfully'if caregiver.modified_count else 'Caregiver Data Update Failed'
 
         except Exception as ex:
             caregiver_id = None
+            caregiver_single = None
             print('Caregiver Save Exception: ',ex)
             message = 'Caregiver Data Update Failed'
             error  = 1
         
         return jsonify({
             "caregiver_id":caregiver_id,
+            "caregiver":caregiver_single,
             "message":message,
             "error":error
         })
@@ -102,10 +122,12 @@ async def save_caregiver():
 
             caregiver_data = my_col('caregiver').insert_one({           
                 'name':data['name'],
+                'gender':data['gender'],
                 'address':data['address'],
                 'phoneNumber':data['phoneNumber'],
                 'email':data['email'],                                
                 'ssn':data['ssn'],
+                'bank_name':data['bank_name'],
                 'bank_acc_no':data['bank_acc_no'],
                 'bank_routing_no':data['bank_routing_no'],
                 'working_schedule':data['working_schedule'],
