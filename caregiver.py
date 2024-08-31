@@ -44,7 +44,7 @@ def list_caregivers_dropdown():
         
     list_cur = []
     for todo in cursor:               
-        list_cur.append({'value':str(todo['_id']),'label': f"{todo['ssn']} {todo['name']}" })
+        list_cur.append({'value':str(todo['_id']),'label': todo['name'], "displayLabel": f"{todo['ssn']} {todo['name']}"})
     #list_cur = list(cursor)
     #data_json = MongoJSONEncoder().encode(list_cur)
     #data_obj = json.loads(data_json)
