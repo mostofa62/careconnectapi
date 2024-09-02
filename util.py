@@ -42,3 +42,20 @@ def convert_unit(size_in_bytes, unit):
        return size_in_bytes/(1024*1024*1024)
    else:
        return size_in_bytes
+   
+
+
+def convertStringTodate(date_string:str, format:str="%Y-%m-%d"):
+    date_timestamp = None
+    if date_string!=None and date_string!='':
+        date_timestamp = datetime.strptime(date_string,format)
+
+    return date_timestamp
+
+def convertDateTostring(date_obj, format:str="%-d %b, %Y"):
+    date_string = ''
+    if date_obj!=None:
+        date_string = date_obj.strftime(format)
+
+    return date_string
+       

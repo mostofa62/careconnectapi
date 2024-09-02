@@ -124,6 +124,16 @@ def view_patient(id:str):
         {"_id":0}
         )
     
+    patient['projected_encrollment_date'] = convertDateTostring(patient['projected_encrollment_date'])
+    patient['confirmed_encrollment_date'] = convertDateTostring(patient['confirmed_encrollment_date'])
+    patient['dob'] = convertDateTostring(patient['dob'])
+    patient['cha_appointment_date'] = convertDateTostring(patient['cha_appointment_date'])
+    patient['ipp_appointment_date'] = convertDateTostring(patient['ipp_appointment_date'])
+    patient['insrn_assessment_date'] = convertDateTostring(patient['insrn_assessment_date'])
+    patient['addn_assessment_date'] = convertDateTostring(patient['addn_assessment_date'])
+    patient['service_start_date'] = convertDateTostring(patient['service_start_date'])
+    patient['service_end_date'] = convertDateTostring(patient['service_end_date'])
+    
     patient['nyia_form_id'] = str(patient['nyia_form_id']) if patient['nyia_form_id']!=None else ''
     patient['doh_form_id'] = str(patient['doh_form_id']) if patient['doh_form_id']!=None else ''
     patient['m11q_form_id'] = str(patient['m11q_form_id']) if patient['m11q_form_id']!=None else ''
@@ -142,6 +152,88 @@ def view_patient(id:str):
     })
 
 
+@app.route('/api/save-patient/<string:id>', methods=['POST'])
+async def update_patient(id:str):
+    if request.method == 'POST':
+        data = json.loads(request.data)
+
+        patient_id = None
+        message = None
+        error = 0
+        try:
+
+            #patient_unique_id = generate_patient_id()
+            del data['patient_id']
+
+            myquery = { "_id" :ObjectId(id)}
+
+            dob = convertStringTodate(data['dob'])
+            service_start_date = convertStringTodate(data['service_start_date'])
+            service_end_date = convertStringTodate(data['service_end_date'])
+            projected_encrollment_date = convertStringTodate(data['projected_encrollment_date'])
+            confirmed_encrollment_date = convertStringTodate(data['confirmed_encrollment_date'])
+            cha_appointment_date = convertStringTodate(data['cha_appointment_date'])
+            ipp_appointment_date = convertStringTodate(data['ipp_appointment_date'])
+            insrn_assessment_date = convertStringTodate(data['insrn_assessment_date'])
+            addn_assessment_date = convertStringTodate(data['addn_assessment_date'])
+
+            append_data = {
+                #'patient_id':patient_unique_id,
+                'nyia_form_id':ObjectId(data['nyia_form_id']) if data['nyia_form_id']!='' else None,
+                'doh_form_id':ObjectId(data['doh_form_id']) if data['doh_form_id']!='' else None,
+                'm11q_form_id':ObjectId(data['m11q_form_id']) if data['m11q_form_id']!='' else None,
+                'enrollment_doc_id':ObjectId(data['enrollment_doc_id']) if data['enrollment_doc_id']!='' else None,
+                'mou_form_id':ObjectId(data['mou_form_id']) if data['mou_form_id']!='' else None,
+
+                'letterofsupport_id':ObjectId(data['letterofsupport_id']) if data['letterofsupport_id']!='' else None,
+                'supplymentaform_id':ObjectId(data['supplymentaform_id']) if data['supplymentaform_id']!='' else None,
+                'bankstatement_id':ObjectId(data['bankstatement_id']) if data['bankstatement_id']!='' else None,
+                'addn_doc_id1':ObjectId(data['addn_doc_id1']) if data['addn_doc_id1']!='' else None,
+                'addn_doc_id2':ObjectId(data['addn_doc_id2']) if data['addn_doc_id2']!='' else None,
+
+                "created_at":datetime.now(),
+                "updated_at":datetime.now(),
+                "deleted_at":None,
+
+                'projected_encrollment_date':projected_encrollment_date,
+                'confirmed_encrollment_date':confirmed_encrollment_date,
+                'dob':dob,
+                'cha_appointment_date':cha_appointment_date,
+                'ipp_appointment_date':ipp_appointment_date,
+                'insrn_assessment_date':insrn_assessment_date,
+                'addn_assessment_date':addn_assessment_date,
+                'service_start_date':service_start_date,
+                'service_end_date':service_end_date,
+                
+
+                
+            }
+            print('data',data)
+            print('appendata',append_data)
+            
+
+            merge_data = data | append_data
+
+            print('mergedata',merge_data)
+            newvalues = { "$set": merge_data }
+
+            patient = my_col('patient').update_one(myquery, newvalues)
+            patient_id = id if patient.modified_count else None
+            error = 0 if patient.modified_count else 1            
+            message = 'Patient Data Update Successfully'if patient.modified_count else 'Patient Data Update Failed'
+        except Exception as ex:
+            patient_id = None
+            print('Patient Updated Exception: ',ex)
+            message = 'Patient Data Updated Failed'
+            error  = 1
+
+        return jsonify({
+            "patient_id":patient_id,
+            "message":message,
+            "error":error
+        })
+
+
 @app.route('/api/save-patient', methods=['POST'])
 async def save_patient():
     if request.method == 'POST':
@@ -154,9 +246,15 @@ async def save_patient():
 
             patient_unique_id = generate_patient_id()
 
-            dob = datetime.strptime(data['dob'],"%Y-%m-%d") if data['dob']!='' else None,
-            service_start_date = datetime.strptime(data['service_start_date'],"%Y-%m-%d") if data['service_start_date']!='' else None,
-            service_end_date = datetime.strptime(data['service_end_date'],"%Y-%m-%d") if data['service_end_date']!='' else None,
+            dob = convertStringTodate(data['dob'])
+            service_start_date = convertStringTodate(data['service_start_date'])
+            service_end_date = convertStringTodate(data['service_end_date'])
+            projected_encrollment_date = convertStringTodate(data['projected_encrollment_date'])
+            confirmed_encrollment_date = convertStringTodate(data['confirmed_encrollment_date'])
+            cha_appointment_date = convertStringTodate(data['cha_appointment_date'])
+            ipp_appointment_date = convertStringTodate(data['ipp_appointment_date'])
+            insrn_assessment_date = convertStringTodate(data['insrn_assessment_date'])
+            addn_assessment_date = convertStringTodate(data['addn_assessment_date'])
 
             append_data = {
                 'patient_id':patient_unique_id,
@@ -176,10 +274,16 @@ async def save_patient():
                 "updated_at":datetime.now(),
                 "deleted_at":None,
 
-
+                'projected_encrollment_date':projected_encrollment_date,
+                'confirmed_encrollment_date':confirmed_encrollment_date,
                 'dob':dob,
+                'cha_appointment_date':cha_appointment_date,
+                'ipp_appointment_date':ipp_appointment_date,
+                'insrn_assessment_date':insrn_assessment_date,
+                'addn_assessment_date':addn_assessment_date,
                 'service_start_date':service_start_date,
-                'service_end_date':service_end_date
+                'service_end_date':service_end_date,
+                
 
                 
             }
