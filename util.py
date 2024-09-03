@@ -52,7 +52,7 @@ def convertStringTodate(date_string:str, format:str="%Y-%m-%d"):
 
     return date_timestamp
 
-def convertDateTostring(date_obj, format:str="%-d %b, %Y"):
+def convertDateTostring(date_obj, format:str="%d %b, %Y"):
     date_string = ''
     if date_obj!=None:
         date_string = date_obj.strftime(format)
