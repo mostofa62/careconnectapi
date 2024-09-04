@@ -114,6 +114,8 @@ def list_agencys():
             {"address": {"$regex": global_filter, "$options": "i"}},
             {"phoneNumber": {"$regex": global_filter, "$options": "i"}},
             {"zipCode": {"$regex": global_filter, "$options": "i"}},
+            {"county.label": {"$regex": global_filter, "$options": "i"}},
+            {"state.label": {"$regex": global_filter, "$options": "i"}},
             # Add other fields here if needed
         ]
 

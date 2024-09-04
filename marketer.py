@@ -137,8 +137,8 @@ def list_marketer():
             {"address": {"$regex": global_filter, "$options": "i"}},
             {"phoneNumber": {"$regex": global_filter, "$options": "i"}},
             {"email": {"$regex": global_filter, "$options": "i"}},
-            {"type.value": {"$regex": global_filter, "$options": "i"}},
-            {"contract_type.value": {"$regex": global_filter, "$options": "i"}},            
+            {"type.label": {"$regex": global_filter, "$options": "i"}},
+            {"contract_type.label": {"$regex": global_filter, "$options": "i"}},            
             # Add other fields here if needed
         ]
 
