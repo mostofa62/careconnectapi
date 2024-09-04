@@ -184,6 +184,7 @@ def list_caregiver():
             {"phoneNumber": {"$regex": global_filter, "$options": "i"}},
             {"email": {"$regex": global_filter, "$options": "i"}},
             {"ssn": {"$regex": global_filter, "$options": "i"}},
+            {"bank_name": {"$regex": global_filter, "$options": "i"}},
             {"bank_acc_no": {"$regex": global_filter, "$options": "i"}},
             {"bank_routing_no": {"$regex": global_filter, "$options": "i"}},            
             # Add other fields here if needed

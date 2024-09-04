@@ -104,7 +104,13 @@ def list_patinet():
             #{"phoneNumber": {"$regex": global_filter, "$options": "i"}},
             {"zipCode": zipCode},
             {"medicaid_id": {"$regex": global_filter, "$options": "i"}},
-            #{"service_type.label": {"$regex": global_filter, "$options": "i"}},                            
+            {"ssn": {"$regex": global_filter, "$options": "i"}},
+            {"consumer_status.label": {"$regex": global_filter, "$options": "i"}},
+            {"city.label": {"$regex": global_filter, "$options": "i"}},
+            {"county.label": {"$regex": global_filter, "$options": "i"}},
+            {"phone": {"$regex": global_filter, "$options": "i"}},
+            {"cell_phone": {"$regex": global_filter, "$options": "i"}},
+            {"email": {"$regex": global_filter, "$options": "i"}},                            
             # Add other fields here if needed
         ]
 
