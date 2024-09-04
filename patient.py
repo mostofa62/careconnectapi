@@ -45,23 +45,66 @@ def list_patinet():
 
         pattern_str = r'^\d{4}-\d{2}-\d{2}$'
         dob = None
+        pattern_zip = r'^\d+$'
+        zipCode = None
         #try:
         if re.match(pattern_str, global_filter):
             dob = datetime.strptime(global_filter,"%Y-%m-%d")
         #except ValueError:
         else:
             dob = None
+
+
+        if re.match(pattern_zip, global_filter):
+            zipCode = int(global_filter)
+        #except ValueError:
+        else:
+            zipCode = None
+        
+
         query["$or"] = [
-            {"patient_id": {"$regex": global_filter, "$options": "i"}},
+
+            # {
+            # "first_name": {
+            #     "$regex": f"^{global_filter}$",
+            #     "$options": "i"
+            # },
+            # "first_name": {"$ne": None, "$ne": ""}
+            # },
+            # {
+            #     "middle_name": {
+            #         "$regex": f"^{global_filter}$",
+            #         "$options": "i"
+            #     },
+            #     "middle_name": {"$ne": None, "$ne": ""}
+            # },
+            # {
+            #     "last_name": {
+            #         "$regex": f"^{global_filter}$",
+            #         "$options": "i"
+            #     },
+            #     "last_name": {"$ne": None, "$ne": ""}
+            # },
+           
+            # {
+            #     "address": {
+            #         "$regex": f"^{global_filter}$",
+            #         "$options": "i"
+            #     },
+            #     "address": {"$ne": None, "$ne": ""}
+            # },
+            
+            # Add other fields with similar structure
+
+            {"dob": dob},  # Exact match for date of birth
             {"first_name": {"$regex": global_filter, "$options": "i"}},
             {"middle_name": {"$regex": global_filter, "$options": "i"}},
-            {"last_name": {"$regex": global_filter, "$options": "i"}},
+            {"last_name": {"$regex": global_filter, "$options": "i"}},             
             {"address": {"$regex": global_filter, "$options": "i"}},
-            {"phoneNumber": {"$regex": global_filter, "$options": "i"}},
-            {"zipCode": {"$regex": global_filter, "$options": "i"}},
-            {"service_type.label": {"$regex": global_filter, "$options": "i"}},
-
-            {"dob":dob}                
+            #{"phoneNumber": {"$regex": global_filter, "$options": "i"}},
+            {"zipCode": zipCode},
+            {"medicaid_id": {"$regex": global_filter, "$options": "i"}},
+            #{"service_type.label": {"$regex": global_filter, "$options": "i"}},                            
             # Add other fields here if needed
         ]
 
@@ -84,7 +127,17 @@ def list_patinet():
     data_list = []
 
     for todo in cursor:        
-        #todo['dob'] = datetime.strptime(todo['dob'], "%Y-%m-%d").strftime("%-d %b, %Y") if todo['dob']!="" else ""
+        todo['dob'] = convertDateTostring(todo['dob'])
+        todo['service_start_date'] = convertDateTostring(todo['service_start_date'])
+        todo['service_end_date'] = convertDateTostring(todo['service_end_date'])
+        todo['projected_encrollment_date'] = convertDateTostring(todo['projected_encrollment_date'])
+        todo['confirmed_encrollment_date'] = convertDateTostring(todo['confirmed_encrollment_date'])
+        todo['cha_appointment_date'] = convertDateTostring(todo['cha_appointment_date'])
+        todo['ipp_appointment_date'] = convertDateTostring(todo['ipp_appointment_date'])
+        todo['insrn_assessment_date'] = convertDateTostring(todo['insrn_assessment_date'])
+        todo['addn_assessment_date'] = convertDateTostring(todo['addn_assessment_date'])    
+
+
         data_list.append(todo)
     data_json = MongoJSONEncoder().encode(data_list)
     data_obj = json.loads(data_json)
@@ -99,7 +152,7 @@ def list_patinet():
         'totalRows': total_count
     })
 
-
+'''
 def generate_patient_id():
     today = datetime.today()
     start_of_today = datetime(today.year, today.month, today.day)
@@ -116,6 +169,32 @@ def generate_patient_id():
     sequence_str = f"{sequence_number:04d}" # 1000 patient perday 9999
     unique_id = f"{current_date}{sequence_str}"
     return unique_id
+'''
+
+def generate_patient_id():
+
+    # Find the maximum patient_id
+    max_patient = patient.find_one(
+        {},  # No filter
+        sort=[('patient_id', -1)]  # Sort in descending order to get the max
+    )
+    
+    if max_patient:
+        max_id = max_patient['patient_id']
+        # Increment the sequence number by converting the current max_id to integer
+        sequence_number = max_id  # Convert max_id to integer
+    else:
+        # If no IDs exist, start with 0
+        sequence_number = 0
+    
+    # Increment the sequence number
+    sequence_number += 1
+    
+    # Convert the sequence number to string
+    #unique_id = str(sequence_number)
+    unique_id = sequence_number
+    
+    return unique_id
     
 @app.route("/api/patient/<string:id>", methods=['GET'])
 def view_patient(id:str):
@@ -124,15 +203,15 @@ def view_patient(id:str):
         {"_id":0}
         )
     
-    patient['projected_encrollment_date'] = convertDateTostring(patient['projected_encrollment_date'])
-    patient['confirmed_encrollment_date'] = convertDateTostring(patient['confirmed_encrollment_date'])
-    patient['dob'] = convertDateTostring(patient['dob'])
-    patient['cha_appointment_date'] = convertDateTostring(patient['cha_appointment_date'])
-    patient['ipp_appointment_date'] = convertDateTostring(patient['ipp_appointment_date'])
-    patient['insrn_assessment_date'] = convertDateTostring(patient['insrn_assessment_date'])
-    patient['addn_assessment_date'] = convertDateTostring(patient['addn_assessment_date'])
-    patient['service_start_date'] = convertDateTostring(patient['service_start_date'])
-    patient['service_end_date'] = convertDateTostring(patient['service_end_date'])
+    patient['projected_encrollment_date'] = convertDateTostring(patient['projected_encrollment_date'],"%Y-%m-%d")
+    patient['confirmed_encrollment_date'] = convertDateTostring(patient['confirmed_encrollment_date'],"%Y-%m-%d")
+    patient['dob'] = convertDateTostring(patient['dob'],"%Y-%m-%d")
+    patient['cha_appointment_date'] = convertDateTostring(patient['cha_appointment_date'],"%Y-%m-%d")
+    patient['ipp_appointment_date'] = convertDateTostring(patient['ipp_appointment_date'],"%Y-%m-%d")
+    patient['insrn_assessment_date'] = convertDateTostring(patient['insrn_assessment_date'],"%Y-%m-%d")
+    patient['addn_assessment_date'] = convertDateTostring(patient['addn_assessment_date'],"%Y-%m-%d")
+    patient['service_start_date'] = convertDateTostring(patient['service_start_date'],"%Y-%m-%d")
+    patient['service_end_date'] = convertDateTostring(patient['service_end_date'],"%Y-%m-%d")
     
     patient['nyia_form_id'] = str(patient['nyia_form_id']) if patient['nyia_form_id']!=None else ''
     patient['doh_form_id'] = str(patient['doh_form_id']) if patient['doh_form_id']!=None else ''
@@ -223,6 +302,7 @@ async def update_patient(id:str):
             message = 'Patient Data Update Successfully'if patient.modified_count else 'Patient Data Update Failed'
         except Exception as ex:
             patient_id = None
+            print('data',data)
             print('Patient Updated Exception: ',ex)
             message = 'Patient Data Updated Failed'
             error  = 1

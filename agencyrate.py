@@ -136,26 +136,30 @@ def list_agencyrates(angtid=None):
             "deleted_at":None
         }
 
+        
+            
 
-        agency_id_list=[]
-        if(global_filter!= ''):
+        if global_filter:
+            
+            agency_id_list=[]
             agency = my_col('agency').find(
                 {'name':{"$regex":global_filter,"$options":"i"}},
                 {'_id':1}
             )
             agency_list = list(agency)
-            agency_id_list = [d.pop('_id') for d in agency_list]    
+            if len(agency_list) > 0:
+                agency_id_list = [d.pop('_id') for d in agency_list]
 
-        insurance_id_list=[]
-        if(global_filter!= ''):
+            insurance_id_list=[]
             insurance = my_col('insurance').find(
                 {'name':{"$regex":global_filter,"$options":"i"}},
                 {'_id':1}
             )
             insurance_list = list(insurance)
-            insurance_id_list = [d.pop('_id') for d in insurance_list]
+            if len(insurance_list)> 0:
+                insurance_id_list = [d.pop('_id') for d in insurance_list]
 
-        if global_filter:
+
             query["$or"] = [
                 {"rate": {"$regex": global_filter, "$options": "i"}},            
                 {"agency.value": {"$in":agency_id_list}},

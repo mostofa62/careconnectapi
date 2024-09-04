@@ -121,13 +121,14 @@ def list_caremanagers(insid=None):
         "deleted_at":None
     }
     insurance_id_list=[]
-    if(insid==None and global_filter!= ''):
+    if(insid==None and global_filter):
         insurance = my_col('insurance').find(
             {'name':{"$regex":global_filter,"$options":"i"}},
             {'_id':1}
         )
         insurance_list = list(insurance)
-        insurance_id_list = [d.pop('_id') for d in insurance_list]
+        if len(insurance_list) > 0:
+            insurance_id_list = [d.pop('_id') for d in insurance_list]
 
     #print(insurance_id_list)    
 

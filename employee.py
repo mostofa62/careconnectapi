@@ -120,20 +120,26 @@ def list_employees(angtid=None):
 
 
     agency_id_list=[]
-    if(angtid==None and global_filter!= ''):
+    
+    if(angtid==None and global_filter):
+
         agency = my_col('agency').find(
             {'name':{"$regex":global_filter,"$options":"i"}},
             {'_id':1}
         )
+        
         agency_list = list(agency)
-        agency_id_list = [d.pop('_id') for d in agency_list]    
+        if len(agency_list) > 0:
+            agency_id_list = [d.pop('_id') for d in agency_list]
+        
+        
 
     if(angtid!=None):    
         query = {
             'agency.value':ObjectId(angtid),
             "deleted_at":None
         }
-
+    
     if global_filter:
         query["$or"] = [
             {"name": {"$regex": global_filter, "$options": "i"}},
